@@ -27,3 +27,6 @@ dist-ssr
 # Environment variables (secrets)
 .env*
 !.env.example
+
+# Private test scores
+tests/fixtures/private/
