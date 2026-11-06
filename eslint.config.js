@@ -29,6 +29,8 @@ export default defineConfig([
         'error',
         { ignoreArrowShorthand: true },
       ],
+      // Like -Werror=switch: every variant of a union must be handled
+      '@typescript-eslint/switch-exhaustiveness-check': 'error',
     },
   },
 ])
