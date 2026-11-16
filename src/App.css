@@ -1,3 +1,13 @@
+/* Page-turning buttons; they stay at the top of the window while scrolling */
+.page-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  background: white;
+}
 /*
  * All pages of the score. As many pages sit side by side as fit
  * (at least 32rem wide each); on narrow screens one page fills the width.

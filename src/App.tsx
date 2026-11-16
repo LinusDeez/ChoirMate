@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import type { EngravingRequest, EngravingResponse } from './engraving/protocol'
+import { usePageTurner } from './ui/usePageTurner'
 import './App.css'
 
 function App() {
   const workerRef = useRef<Worker | null>(null)
   const [status, setStatus] = useState('Loading engraving engine…')
   const [pages, setPages] = useState<string[]>([])
+  const toolbarRef = useRef<HTMLElement>(null)
+  const scoreRef = useRef<HTMLDivElement>(null)
+  const turn = usePageTurner(scoreRef, toolbarRef)
 
   useEffect(() => {
     const worker = new Worker(
@@ -59,7 +63,17 @@ function App() {
         onChange={handleFileChange}
       />
       <p>{status}</p>
-      <div className="score">
+      {pages.length > 0 && (
+        <nav ref={toolbarRef} className="page-nav">
+          <button type="button" onClick={() => turn('previous')}>
+            Previous
+          </button>
+          <button type="button" onClick={() => turn('next')}>
+            Next
+          </button>
+        </nav>
+      )}
+      <div ref={scoreRef} className="score">
         {pages.map((svg, index) => (
           // The page list is only ever replaced as a whole, so the index is a
           // stable key here
