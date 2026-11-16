@@ -44,15 +44,31 @@ async function load(file: File): Promise<void> {
   if (!ok) {
     throw new Error(`Verovio could not read ${file.name}`)
   }
-  send({
-    type: 'loaded',
-    pageCount: toolkit.getPageCount(),
-    svg: toolkit.renderToSVG(1),
-  })
+  send({ type: 'loaded', pageCount: toolkit.getPageCount() })
+  await renderPage(1)
+}
+
+async function renderPage(page: number): Promise<void> {
+  const toolkit = await toolkitPromise
+  if (page < 1 || page > toolkit.getPageCount()) {
+    throw new Error(`Page ${String(page)} does not exist`)
+  }
+  send({ type: 'page', svg: toolkit.renderToSVG(page) })
+}
+
+async function handle(request: EngravingRequest): Promise<void> {
+  switch (request.type) {
+    case 'load':
+      await load(request.file)
+      break
+    case 'renderPage':
+      await renderPage(request.page)
+      break
+  }
 }
 
 self.onmessage = (event: MessageEvent<EngravingRequest>) => {
-  load(event.data.file).catch((error: unknown) => {
+  handle(event.data).catch((error: unknown) => {
     send({ type: 'error', message: errorMessage(error) })
   })
 }

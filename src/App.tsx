@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import type { EngravingRequest, EngravingResponse } from './engraving/protocol'
+import './App.css'
 
 function App() {
   const workerRef = useRef<Worker | null>(null)
   const [status, setStatus] = useState('Loading engraving engine…')
+  const [pageCount, setPageCount] = useState(0)
+  const [page, setPage] = useState(1)
   const [svg, setSvg] = useState<string | null>(null)
 
   useEffect(() => {
@@ -21,7 +24,10 @@ function App() {
           setStatus(`Verovio ${message.version} ready`)
           break
         case 'loaded':
-          setStatus(`Page 1 of ${String(message.pageCount)}`)
+          setStatus('Score loaded')
+          setPageCount(message.pageCount)
+          break
+        case 'page':
           setSvg(message.svg)
           break
         case 'error':
@@ -37,14 +43,26 @@ function App() {
     }
   }, [])
 
+  function sendToWorker(request: EngravingRequest): void {
+    workerRef.current?.postMessage(request)
+  }
+
   function handleFileChange(event: ChangeEvent<HTMLInputElement>): void {
     const file = event.target.files?.[0]
-    if (!file || !workerRef.current) {
+    if (!file) {
       return
     }
     setStatus(`Engraving ${file.name}…`)
-    const request: EngravingRequest = { type: 'load', file }
-    workerRef.current.postMessage(request)
+    // Forget the previous score until the new one has arrived
+    setPageCount(0)
+    setPage(1)
+    setSvg(null)
+    sendToWorker({ type: 'load', file })
+  }
+
+  function goToPage(newPage: number): void {
+    setPage(newPage)
+    sendToWorker({ type: 'renderPage', page: newPage })
   }
 
   return (
@@ -56,6 +74,27 @@ function App() {
         onChange={handleFileChange}
       />
       <p>{status}</p>
+      {pageCount > 0 && (
+        <nav className="page-nav">
+          <button
+            type="button"
+            disabled={page <= 1}
+            onClick={() => goToPage(page - 1)}
+          >
+            Previous
+          </button>
+          <span>
+            Page {page} of {pageCount}
+          </span>
+          <button
+            type="button"
+            disabled={page >= pageCount}
+            onClick={() => goToPage(page + 1)}
+          >
+            Next
+          </button>
+        </nav>
+      )}
       {svg !== null && <div dangerouslySetInnerHTML={{ __html: svg }} />}
     </main>
   )

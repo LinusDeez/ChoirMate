@@ -1,0 +1,6 @@
+/* Previous / "Page x of y" / Next in one row with even spacing */
+.page-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
