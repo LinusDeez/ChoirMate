@@ -83,6 +83,15 @@ function App() {
           </figure>
         ))}
       </div>
+      <footer className="app-footer">
+        <a
+          href="https://github.com/LinusDeez/ChoirMate#license"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Licenses
+        </a>
+      </footer>
     </main>
   )
 }
