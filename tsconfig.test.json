@@ -1,0 +1,11 @@
+{
+  // Tests run in Node (Vitest), not in the browser: same rules as the app,
+  // plus Node's types (node:fs etc.)
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
+    "types": ["node"]
+  },
+  "include": ["src/**/*.test.ts"],
+  "exclude": []
+}
