@@ -1,6 +1,29 @@
-/* Previous / "Page x of y" / Next in one row with even spacing */
-.page-nav {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+/*
+ * All pages of the score. As many pages sit side by side as fit
+ * (at least 32rem wide each); on narrow screens one page fills the width.
+ */
+.score {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 32rem), 1fr));
+  gap: 1.5rem;
+}
+
+/* One sheet of paper */
+.score-page {
+  margin: 0;
+  background: white;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.25);
+}
+
+/* Scale the page with its column; the viewBox keeps the A4 proportions */
+.score-page svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.score-page figcaption {
+  padding: 0.25rem 0 0.5rem;
+  text-align: center;
+  font-size: 0.875rem;
 }

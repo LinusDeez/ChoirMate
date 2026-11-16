@@ -13,7 +13,17 @@ function errorMessage(error: unknown): string {
 async function createToolkit(): Promise<VerovioToolkit> {
   const module = await createVerovioModule()
   const toolkit = new VerovioToolkit(module)
-  toolkit.setOptions({ adjustPageHeight: true, scale: 40 })
+  toolkit.setOptions({
+    // Fixed A4 pages (in tenths of a millimetre), so page numbers mean the
+    // same thing on every screen
+    pageWidth: 2100,
+    pageHeight: 2970,
+    // Keep the system and page breaks of the original edition. Without
+    // encoded breaks, Verovio falls back to its automatic layout.
+    breaks: 'encoded',
+    // Let the browser scale the SVG to any size
+    svgViewBox: true,
+  })
   return toolkit
 }
 
@@ -44,31 +54,15 @@ async function load(file: File): Promise<void> {
   if (!ok) {
     throw new Error(`Verovio could not read ${file.name}`)
   }
-  send({ type: 'loaded', pageCount: toolkit.getPageCount() })
-  await renderPage(1)
-}
-
-async function renderPage(page: number): Promise<void> {
-  const toolkit = await toolkitPromise
-  if (page < 1 || page > toolkit.getPageCount()) {
-    throw new Error(`Page ${String(page)} does not exist`)
-  }
-  send({ type: 'page', svg: toolkit.renderToSVG(page) })
-}
-
-async function handle(request: EngravingRequest): Promise<void> {
-  switch (request.type) {
-    case 'load':
-      await load(request.file)
-      break
-    case 'renderPage':
-      await renderPage(request.page)
-      break
-  }
+  // Verovio numbers pages from 1
+  const pages = Array.from({ length: toolkit.getPageCount() }, (_, index) =>
+    toolkit.renderToSVG(index + 1),
+  )
+  send({ type: 'score', pages })
 }
 
 self.onmessage = (event: MessageEvent<EngravingRequest>) => {
-  handle(event.data).catch((error: unknown) => {
+  load(event.data.file).catch((error: unknown) => {
     send({ type: 'error', message: errorMessage(error) })
   })
 }
