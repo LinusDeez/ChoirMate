@@ -1,73 +1,71 @@
-# React + TypeScript + Vite
+# ChoirMate
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web app that helps choir singers practise their part at home.
 
-Currently, two official plugins are available:
+**Live:** <https://choirmate.linusdietz.workers.dev>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+> Early development. ChoirMate is a portfolio project, piloted with my own choir.
 
-## React Compiler
+## What it does so far
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Opens MusicXML scores (`.mxl` or `.musicxml`) and engraves them in the browser
+  with [Verovio](https://www.verovio.org).
+- Keeps the page and system breaks of the original edition on fixed A4 pages,
+  so "page 2, top right" means the same thing on every screen and on paper.
+- Shows as many pages side by side as fit on the screen.
+- Turns pages with buttons, the keyboard (Page Up/Down, arrow keys) or a
+  Bluetooth page-turner foot pedal.
 
-## Expanding the ESLint configuration
+## Roadmap
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. ~~Show the score~~ ✓
+2. Play it back
+3. Practise: choose your voice, loop passages, change the tempo
+4. Accounts and shared scores for a choir
+5. Installable app that works offline (PWA)
+6. Pilot with a real choir
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Tech stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+React 19, TypeScript, Vite, Verovio (WebAssembly, running in a Web Worker),
+Vitest, deployed on Cloudflare Workers.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Development
+
+Requires Node.js (version in [`.nvmrc`](.nvmrc)).
+
+```sh
+npm ci            # install dependencies
+npm run dev       # start the dev server
+npm run test:run  # run the tests once
+npm run lint      # check the code with ESLint
+npm run build     # type-check and build for production
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+| Folder                                      | Contents                                           |
+| ------------------------------------------- | -------------------------------------------------- |
+| [`src/core`](src/core)                      | Music logic in plain TypeScript, no browser needed |
+| [`src/engraving`](src/engraving)            | Verovio in a Web Worker: MusicXML in, SVG out      |
+| [`src/audio`](src/audio)                    | Playback (coming in phase 2)                       |
+| [`src/ui`](src/ui)                          | React components and hooks                         |
+| [`tests/fixtures`](tests/fixtures/musicxml) | Freely licensed test scores and their edge cases   |
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## License
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+ChoirMate is released under the [MIT License](LICENSE).
+
+### Third-party software
+
+ChoirMate bundles [Verovio](https://github.com/rism-digital/verovio)
+(© Laurent Pugin and others), which is licensed under the
+[GNU Lesser General Public License v3.0](https://www.gnu.org/licenses/lgpl-3.0.html).
+Verovio is used unmodified, as published in the npm package
+[`verovio`](https://www.npmjs.com/package/verovio); its source code is
+available in the repository linked above. To use a different version, change
+the `verovio` dependency in [`package.json`](package.json) and rebuild.
+
+### Test scores
+
+The scores in [`tests/fixtures/musicxml`](tests/fixtures/musicxml) come from
+the [Choral Public Domain Library](https://www.cpdl.org) and keep their own
+licenses, listed in [their README](tests/fixtures/musicxml/README.md).
